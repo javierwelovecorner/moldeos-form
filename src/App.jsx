@@ -146,6 +146,7 @@ export default function App() {
   const [answers, setAnswers] = useState({});
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const current = steps[step];
   const isLast = step === steps.length - 1;
@@ -166,9 +167,69 @@ export default function App() {
     return Object.keys(e).length === 0;
   }
 
-  function next() {
+  async function next() {
     if (!validate()) return;
-    if (isLast) { setSubmitted(true); return; }
+
+    if (isLast) {
+      // Enviar a HubSpot cuando es el último paso
+      setLoading(true);
+      try {
+        // Mapear respuestas a formato para HubSpot
+        const formData = {
+          nombre: answers.nombre || '',
+          empresa: answers.empresa || '',
+          cargo: answers.cargo || '',
+          email: answers.email || '',
+          telefono: answers.telefono || '',
+          industria: answers.industria || '',
+          tipo_proyecto: answers.tipo_proyecto || '',
+          presupuesto: answers.presupuesto || '',
+          urgencia: answers.urgencia || '',
+          volumen: answers.volumen || '',
+          cavidades: answers.cavidades || '',
+          tiene_plano: answers.tiene_plano || '',
+          descripcion: answers.descripcion || ''
+        };
+
+        // Obtener parámetros UTM de la URL
+        const params = new URLSearchParams(window.location.search);
+        const utmParams = {
+          utm_source: params.get('utm_source') || 'moldeos.com',
+          utm_medium: params.get('utm_medium') || 'form_multi_step',
+          utm_campaign: params.get('utm_campaign') || 'project_qualifier',
+          utm_content: params.get('utm_content') || 'contact_form'
+        };
+
+        console.log('📤 Enviando a HubSpot...', { formData, utmParams });
+
+        // Enviar a API
+        const response = await fetch('/api/submit-form', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ formData, utmParams })
+        });
+
+        const result = await response.json();
+        console.log('📥 Respuesta HubSpot:', result);
+
+        if (!result.success) {
+          console.error('❌ Error al enviar a HubSpot:', result.error);
+          // Continuar mostrando resultado aunque falle HubSpot
+        }
+
+        setSubmitted(true);
+      } catch (error) {
+        console.error('❌ Error en envío:', error);
+        // Continuar mostrando resultado aunque falle HubSpot
+        setSubmitted(true);
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
     setStep(s => s + 1);
   }
 
@@ -281,8 +342,16 @@ export default function App() {
 
         <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
           {step > 0 && <button onClick={() => setStep(s => s - 1)} style={s.btnSecondary}>← Atrás</button>}
-          <button onClick={next} style={s.btnPrimary}>
-            {isLast ? "Enviar solicitud →" : "Continuar →"}
+          <button
+            onClick={next}
+            style={{
+              ...s.btnPrimary,
+              opacity: loading ? 0.6 : 1,
+              cursor: loading ? 'not-allowed' : 'pointer'
+            }}
+            disabled={loading}
+          >
+            {loading ? "Enviando..." : (isLast ? "Enviar solicitud →" : "Continuar →")}
           </button>
         </div>
       </div>
