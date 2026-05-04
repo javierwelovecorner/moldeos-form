@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
 const steps = [
   {
@@ -359,6 +360,7 @@ export default function App() {
       <p style={{ fontSize: 11, color: "#94A3B8", textAlign: "center" }}>
         🔒 Tu información es confidencial · Respondemos en menos de 24 hrs hábiles · moldeos.com
       </p>
+      <SpeedInsights />
     </div>
   );
 }
