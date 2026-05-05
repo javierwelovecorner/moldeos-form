@@ -27,20 +27,52 @@ export default async function handler(req, res) {
     // 1. Calcular Lead Score
     const leadScore = calculateLeadScore(formData);
 
-    // 2. Mapear datos SOLO a propiedades que SIEMPRE existen en HubSpot
+    // 2. Mapear datos a formato HubSpot - 10 PROPIEDADES CUSTOM QUE EXISTEN
     const hubspotPayload = {
       properties: {
+        // Propiedades estándar de HubSpot
         firstname: formData.nombre?.split(' ')[0] || 'Contacto',
         lastname: formData.nombre?.split(' ').slice(1).join(' ') || 'Moldeos',
         email: formData.email?.trim() || '',
         phone: formData.telefono || '',
         company: formData.empresa || '',
         jobtitle: formData.cargo || '',
-        lifecyclestage: leadScore >= 50 ? 'salesqualifiedlead' : 'lead'
+        lifecyclestage: leadScore >= 50 ? 'salesqualifiedlead' : 'lead',
+
+        // 10 PROPIEDADES CUSTOM CREADAS EN HUBSPOT
+        // 1. Puntaje inicial del lead
+        puntaje_inicial_del_lead: leadScore.toString(),
+        
+        // 2. Campaña de origen (UTM Source)
+        campaña_de_origen: utmParams.utm_source || 'moldeos.com',
+        
+        // 3. UTM Medium
+        utm_medium: utmParams.utm_medium || 'form_multi_step',
+        
+        // 4. UTM Campaign
+        utm_campaign: utmParams.utm_campaign || 'project_qualifier',
+        
+        // 5. Industria de interés
+        industria_interes: formData.industria || '',
+        
+        // 6. Tipo de proyecto
+        tipo_proyecto: formData.tipo_proyecto || '',
+        
+        // 7. Presupuesto estimado
+        presupuesto_estimado: formData.presupuesto || '',
+        
+        // 8. Timeframe
+        timeframe: formData.urgencia || '',
+        
+        // 9. Observaciones del formulario
+        observaciones_del_formulario: formData.descripcion || 'Sin observaciones',
+        
+        // 10. Volumen estimado mensual
+        volumen: formData.volumen || ''
       }
     };
 
-    console.log('📤 Datos enviando a HubSpot:', hubspotPayload);
+    console.log('📤 Datos enviando a HubSpot:', JSON.stringify(hubspotPayload, null, 2));
 
     // 3. Llamar API de HubSpot
     const hubspotResponse = await fetch(
