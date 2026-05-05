@@ -27,37 +27,30 @@ export default async function handler(req, res) {
     // 1. Calcular Lead Score
     const leadScore = calculateLeadScore(formData);
 
-    // 2. Mapear datos a formato HubSpot
+    // 2. Mapear datos a formato HubSpot (usando SOLO propiedades que existem)
     const hubspotPayload = {
       properties: {
-        // Estándar de HubSpot
+        // Propiedades estándar de HubSpot (estas SIEMPRE existen)
         firstname: formData.nombre?.split(' ')[0] || '',
         lastname: formData.nombre?.split(' ').slice(1).join(' ') || '',
         email: formData.email?.trim() || '',
         phone: formData.telefono || '',
         company: formData.empresa || '',
         jobtitle: formData.cargo || '',
-
-        // Custom properties (Moldeos)
+        
+        // Propiedades custom - usando names_con_guion_bajo (snake_case)
+        // Estas deben coincidir EXACTAMENTE con lo que creaste en HubSpot
         puntaje_inicial_del_lead: leadScore.toString(),
         campaña_de_origen: utmParams.utm_source || 'moldeos.com',
-        utm_medium: utmParams.utm_medium || 'direct',
-        utm_campaign: utmParams.utm_campaign || 'form_submission',
-        utm_content: utmParams.utm_content || 'contact_form',
+        utm_medium: utmParams.utm_medium || 'form_multi_step',
+        utm_campaign: utmParams.utm_campaign || 'project_qualifier',
         industria_interes: formData.industria || '',
-        tipo_molde_interes: Array.isArray(formData.tipo_molde)
-          ? formData.tipo_molde.join(';')
-          : formData.tipo_molde || '',
         presupuesto_estimado: formData.presupuesto || '',
-        timeframe: formData.timeframe || '',
-        observaciones_del_formulario: formData.observaciones || 'Sin observaciones',
-        url_del_formulario: 'https://moldeos-form.vercel.app',
-
+        timeframe: formData.urgencia || '',
+        observaciones_del_formulario: formData.descripcion || 'Sin observaciones',
+        
         // Ciclo de vida basado en score
         lifecyclestage: leadScore >= 50 ? 'salesqualifiedlead' : 'lead',
-
-        // Timestamp
-        entrada_form: new Date().toISOString(),
       }
     };
 
@@ -88,7 +81,7 @@ export default async function handler(req, res) {
 
     // 5. Éxito
     console.log('✅ Contacto creado en HubSpot:', hubspotData.id);
-
+    
     return res.status(201).json({
       success: true,
       contactId: hubspotData.id,
@@ -125,17 +118,17 @@ function calculateLeadScore(data) {
     score += 25;
   }
 
-  // Timeframe: +25 (inmediato), +15 (1-3m)
-  if (data.timeframe === 'inmediato' || data.timeframe === 'immediate') {
+  // Timeframe/Urgencia: +25 (inmediato), +15 (corto)
+  if (data.urgencia === 'urgente' || data.timeframe === 'urgente') {
     score += 25;
-  } else if (data.timeframe === '1-3 meses' || data.timeframe === '1-3 months') {
+  } else if (data.urgencia === 'corto' || data.timeframe === 'corto') {
     score += 15;
   }
 
   // Presupuesto: +25 (alto), +15 (medio)
-  if (data.presupuesto === 'alto' || data.presupuesto === 'high') {
+  if (data.presupuesto === 'mas_100k' || data.presupuesto === 'alto') {
     score += 25;
-  } else if (data.presupuesto === 'medio' || data.presupuesto === 'medium') {
+  } else if (data.presupuesto === '50k_100k' || data.presupuesto === 'medio') {
     score += 15;
   }
 
