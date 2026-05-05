@@ -27,20 +27,20 @@ export default async function handler(req, res) {
     // 1. Calcular Lead Score
     const leadScore = calculateLeadScore(formData);
 
-    // 2. Mapear datos a formato HubSpot - SOLO PROPIEDADES ESTÁNDAR
+    // 2. Mapear datos SOLO a propiedades que SIEMPRE existen en HubSpot
     const hubspotPayload = {
       properties: {
-        // Propiedades estándar de HubSpot (SIEMPRE existen)
-        firstname: formData.nombre?.split(' ')[0] || '',
-        lastname: formData.nombre?.split(' ').slice(1).join(' ') || '',
+        firstname: formData.nombre?.split(' ')[0] || 'Contacto',
+        lastname: formData.nombre?.split(' ').slice(1).join(' ') || 'Moldeos',
         email: formData.email?.trim() || '',
         phone: formData.telefono || '',
         company: formData.empresa || '',
         jobtitle: formData.cargo || '',
-        lifecyclestage: leadScore >= 50 ? 'salesqualifiedlead' : 'lead',
-        notes: buildNotesField(formData, leadScore, utmParams)
+        lifecyclestage: leadScore >= 50 ? 'salesqualifiedlead' : 'lead'
       }
     };
+
+    console.log('📤 Datos enviando a HubSpot:', hubspotPayload);
 
     // 3. Llamar API de HubSpot
     const hubspotResponse = await fetch(
@@ -57,6 +57,8 @@ export default async function handler(req, res) {
 
     const hubspotData = await hubspotResponse.json();
 
+    console.log('📥 Respuesta de HubSpot:', hubspotData);
+
     // 4. Manejo de errores
     if (!hubspotResponse.ok) {
       console.error('❌ HubSpot API Error:', hubspotData);
@@ -67,8 +69,8 @@ export default async function handler(req, res) {
       });
     }
 
-    // 5. Éxito
-    console.log('✅ Contacto creado en HubSpot:', hubspotData.id);
+    // 5. Éxito - Contacto creado
+    console.log('✅ ¡CONTACTO CREADO EXITOSAMENTE EN HUBSPOT!', hubspotData.id);
     
     return res.status(201).json({
       success: true,
@@ -121,27 +123,4 @@ function calculateLeadScore(data) {
   }
 
   return Math.min(score, 100);
-}
-
-// Construir campo Notes con toda la información del formulario
-function buildNotesField(formData, leadScore, utmParams) {
-  const lines = [
-    `=== FORMULARIO MOLDEOS ESPECIALIZADOS ===`,
-    `Lead Score: ${leadScore}/100`,
-    `Tipo de Proyecto: ${formData.tipo_proyecto || 'No especificado'}`,
-    `Industria: ${formData.industria || 'No especificada'}`,
-    `Presupuesto: ${formData.presupuesto || 'No definido'}`,
-    `Timeframe: ${formData.urgencia || 'No definido'}`,
-    `Volumen: ${formData.volumen || 'No especificado'}`,
-    `Cavidades: ${formData.cavidades || 'No especificado'}`,
-    `Tiene Plano: ${formData.tiene_plano || 'No especificado'}`,
-    `Descripción: ${formData.descripcion || 'Sin descripción'}`,
-    ``,
-    `=== UTM PARAMS ===`,
-    `Source: ${utmParams.utm_source || 'direct'}`,
-    `Medium: ${utmParams.utm_medium || 'direct'}`,
-    `Campaign: ${utmParams.utm_campaign || 'direct'}`,
-  ];
-  
-  return lines.join('\n');
 }
