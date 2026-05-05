@@ -27,30 +27,18 @@ export default async function handler(req, res) {
     // 1. Calcular Lead Score
     const leadScore = calculateLeadScore(formData);
 
-    // 2. Mapear datos a formato HubSpot (usando SOLO propiedades que existem)
+    // 2. Mapear datos a formato HubSpot - SOLO PROPIEDADES ESTÁNDAR
     const hubspotPayload = {
       properties: {
-        // Propiedades estándar de HubSpot (estas SIEMPRE existen)
+        // Propiedades estándar de HubSpot (SIEMPRE existen)
         firstname: formData.nombre?.split(' ')[0] || '',
         lastname: formData.nombre?.split(' ').slice(1).join(' ') || '',
         email: formData.email?.trim() || '',
         phone: formData.telefono || '',
         company: formData.empresa || '',
         jobtitle: formData.cargo || '',
-        
-        // Propiedades custom - usando names_con_guion_bajo (snake_case)
-        // Estas deben coincidir EXACTAMENTE con lo que creaste en HubSpot
-        puntaje_inicial_del_lead: leadScore.toString(),
-        campaña_de_origen: utmParams.utm_source || 'moldeos.com',
-        utm_medium: utmParams.utm_medium || 'form_multi_step',
-        utm_campaign: utmParams.utm_campaign || 'project_qualifier',
-        industria_interes: formData.industria || '',
-        presupuesto_estimado: formData.presupuesto || '',
-        timeframe: formData.urgencia || '',
-        observaciones_del_formulario: formData.descripcion || 'Sin observaciones',
-        
-        // Ciclo de vida basado en score
         lifecyclestage: leadScore >= 50 ? 'salesqualifiedlead' : 'lead',
+        notes: buildNotesField(formData, leadScore, utmParams)
       }
     };
 
@@ -71,11 +59,11 @@ export default async function handler(req, res) {
 
     // 4. Manejo de errores
     if (!hubspotResponse.ok) {
-      console.error('❌ HubSpot Error:', hubspotData);
+      console.error('❌ HubSpot API Error:', hubspotData);
       return res.status(hubspotResponse.status).json({
         success: false,
         error: 'Error al crear contacto en HubSpot',
-        details: hubspotData.message || hubspotData.errors
+        details: hubspotData.message || hubspotData.errors || JSON.stringify(hubspotData)
       });
     }
 
@@ -118,19 +106,42 @@ function calculateLeadScore(data) {
     score += 25;
   }
 
-  // Timeframe/Urgencia: +25 (inmediato), +15 (corto)
-  if (data.urgencia === 'urgente' || data.timeframe === 'urgente') {
+  // Urgencia: +25 (urgente), +15 (corto)
+  if (data.urgencia === 'urgente') {
     score += 25;
-  } else if (data.urgencia === 'corto' || data.timeframe === 'corto') {
+  } else if (data.urgencia === 'corto') {
     score += 15;
   }
 
   // Presupuesto: +25 (alto), +15 (medio)
-  if (data.presupuesto === 'mas_100k' || data.presupuesto === 'alto') {
+  if (data.presupuesto === 'mas_100k') {
     score += 25;
-  } else if (data.presupuesto === '50k_100k' || data.presupuesto === 'medio') {
+  } else if (data.presupuesto === '50k_100k') {
     score += 15;
   }
 
-  return Math.min(score, 100); // Máximo 100
+  return Math.min(score, 100);
+}
+
+// Construir campo Notes con toda la información del formulario
+function buildNotesField(formData, leadScore, utmParams) {
+  const lines = [
+    `=== FORMULARIO MOLDEOS ESPECIALIZADOS ===`,
+    `Lead Score: ${leadScore}/100`,
+    `Tipo de Proyecto: ${formData.tipo_proyecto || 'No especificado'}`,
+    `Industria: ${formData.industria || 'No especificada'}`,
+    `Presupuesto: ${formData.presupuesto || 'No definido'}`,
+    `Timeframe: ${formData.urgencia || 'No definido'}`,
+    `Volumen: ${formData.volumen || 'No especificado'}`,
+    `Cavidades: ${formData.cavidades || 'No especificado'}`,
+    `Tiene Plano: ${formData.tiene_plano || 'No especificado'}`,
+    `Descripción: ${formData.descripcion || 'Sin descripción'}`,
+    ``,
+    `=== UTM PARAMS ===`,
+    `Source: ${utmParams.utm_source || 'direct'}`,
+    `Medium: ${utmParams.utm_medium || 'direct'}`,
+    `Campaign: ${utmParams.utm_campaign || 'direct'}`,
+  ];
+  
+  return lines.join('\n');
 }
