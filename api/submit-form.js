@@ -27,7 +27,7 @@ export default async function handler(req, res) {
     // 1. Calcular Lead Score
     const leadScore = calculateLeadScore(formData);
 
-    // 2. Mapear datos a formato HubSpot - 10 PROPIEDADES CUSTOM QUE EXISTEN
+    // 2. Mapear datos a formato HubSpot - 10 PROPIEDADES CUSTOM (SIN TILDES)
     const hubspotPayload = {
       properties: {
         // Propiedades estándar de HubSpot
@@ -39,12 +39,12 @@ export default async function handler(req, res) {
         jobtitle: formData.cargo || '',
         lifecyclestage: leadScore >= 50 ? 'salesqualifiedlead' : 'lead',
 
-        // 10 PROPIEDADES CUSTOM CREADAS EN HUBSPOT
+        // 10 PROPIEDADES CUSTOM CREADAS EN HUBSPOT (SIN TILDES)
         // 1. Puntaje inicial del lead
         puntaje_inicial_del_lead: leadScore.toString(),
         
         // 2. Campaña de origen (UTM Source)
-        campaña_de_origen: utmParams.utm_source || 'moldeos.com',
+        campana_de_origen: utmParams.utm_source || 'moldeos.com',
         
         // 3. UTM Medium
         utm_medium: utmParams.utm_medium || 'form_multi_step',
