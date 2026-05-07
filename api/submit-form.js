@@ -107,34 +107,19 @@ export default async function handler(req, res) {
     // 5. CREAR DEAL AUTOMATICAMENTE
     // ========================================================
     
-    // Crear descripción detallada del proyecto (SIN caracteres especiales)
-    const dealDescription = `INFORMACION DEL PROYECTO
-==================================================
+    // Crear descripcion detallada del proyecto
+    const dealDescription = `Nombre: ${formData.nombre}
+Email: ${formData.email}
+Telefono: ${formData.telefono}
+Empresa: ${formData.empresa}
+Industria: ${formData.industria}
+Tipo Proyecto: ${formData.tipo_proyecto}
+Presupuesto: ${formData.presupuesto}
+Timeframe: ${formData.urgencia}
+Volumen: ${formData.volumen}
+Observaciones: ${formData.observaciones}
+Lead Score: ${leadScore}`;
 
-CONTACTO:
-Nombre: ${formData.nombre || 'N/A'}
-Email: ${formData.email || 'N/A'}
-Telefono: ${formData.telefono || 'N/A'}
-
-EMPRESA:
-Nombre: ${formData.empresa || 'N/A'}
-
-DETALLES DEL PROYECTO:
-Industria: ${formData.industria || 'No especificada'}
-Tipo de Proyecto: ${formData.tipo_proyecto || 'No especificado'}
-Presupuesto: ${formData.presupuesto || 'No especificado'}
-Timeframe: ${formData.urgencia || 'No especificado'}
-Volumen: ${formData.volumen || 'No especificado'}
-
-OBSERVACIONES:
-${formData.observaciones || 'Sin observaciones'}
-
-PUNTUACION INICIAL DEL LEAD: ${leadScore}
-FUENTE: ${formData.campana_de_origen || 'Formulario web'}
-UTM Medium: ${formData.utm_medium || 'N/A'}
-UTM Campaign: ${formData.utm_campaign || 'N/A'}
-
-Fecha de envio: ${new Date().toLocaleString('es-MX')}`.trim();
 
     const dealPayload = {
       properties: {
@@ -205,12 +190,11 @@ Fecha de envio: ${new Date().toLocaleString('es-MX')}`.trim();
         }
       );
 
-      const associationData = await associationResponse.json();
-
+      // No parsear asociación si no está OK - simplemente continuar
       if (associationResponse.ok) {
         console.log('✅ ¡CONTACTO VINCULADO AL DEAL EXITOSAMENTE!');
       } else {
-        console.warn('⚠️ No se pudo vincular el contacto al deal:', associationData);
+        console.warn('⚠️ No se pudo vincular el contacto al deal. Continuando...');
       }
     }
 
