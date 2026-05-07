@@ -133,10 +133,7 @@ Lead Score: ${leadScore}`;
         amount: mapPresupuestoToAmount(formData.presupuesto),
         
         // Fecha de cierre estimada: 30 días desde hoy
-        closedate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        
-        // Notas: guardar TODA la informacion del formulario aqui
-        hs_analytics_notes_last_updated: dealDescription
+        closedate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
       }
     };
 
