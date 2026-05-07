@@ -114,7 +114,7 @@ export default async function handler(req, res) {
         dealname: `Proyecto - ${formData.empresa || formData.nombre}`,
         
         // Etapa inicial: "Contacto inicial" (en español)
-        dealstage: 'contacto_inicial',
+        dealstage: '1353719346',
         
         // Monto del deal (mapear presupuesto)
         amount: mapPresupuestoToAmount(formData.presupuesto),
