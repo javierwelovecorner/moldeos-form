@@ -108,12 +108,43 @@ export default async function handler(req, res) {
     // 5. CREAR DEAL AUTOMÁTICAMENTE (NUEVO)
     // ═══════════════════════════════════════════════════════════════════════════════════
     
+    // Crear descripción detallada del proyecto
+    const dealDescription = `
+INFORMACIÓN DEL PROYECTO
+═══════════════════════════════════════════
+
+CONTACTO:
+  Nombre: ${formData.nombre || 'N/A'}
+  Email: ${formData.email || 'N/A'}
+  Teléfono: ${formData.telefono || 'N/A'}
+
+EMPRESA:
+  Nombre: ${formData.empresa || 'N/A'}
+
+DETALLES DEL PROYECTO:
+  Industria: ${formData.industria || 'No especificada'}
+  Tipo de Proyecto: ${formData.tipo_proyecto || 'No especificado'}
+  Presupuesto: ${formData.presupuesto || 'No especificado'}
+  Timeframe: ${formData.urgencia || 'No especificado'}
+  Volumen: ${formData.volumen || 'No especificado'}
+  
+OBSERVACIONES:
+  ${formData.observaciones || 'Sin observaciones'}
+
+PUNTUACIÓN INICIAL DEL LEAD: ${leadScore}
+FUENTE: ${formData.campana_de_origen || 'Formulario web'}
+UTM Medium: ${formData.utm_medium || 'N/A'}
+UTM Campaign: ${formData.utm_campaign || 'N/A'}
+
+Fecha de envío: ${new Date().toLocaleString('es-MX')}
+    `.trim();
+
     const dealPayload = {
       properties: {
         // Nombre del deal: "Proyecto - [Empresa]"
         dealname: `Proyecto - ${formData.empresa || formData.nombre}`,
         
-        // Etapa inicial: "Contacto inicial" (en español)
+        // Etapa inicial: ID interno de "Contacto inicial" en HubSpot
         dealstage: '1353719346',
         
         // Monto del deal (mapear presupuesto)
@@ -122,13 +153,8 @@ export default async function handler(req, res) {
         // Fecha de cierre estimada: 30 días desde hoy
         closedate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         
-        // Copiar las propiedades custom al Deal (si existen en HubSpot)
-        puntaje_inicial_del_lead: leadScore.toString(),
-        industria_interes: formData.industria || '',
-        tipo_proyecto: formData.tipo_proyecto || '',
-        presupuesto_estimado: formData.presupuesto || '',
-        timeframe: formData.urgencia || '',
-        volumen: formData.volumen || ''
+        // Descripción detallada con TODA la información del formulario
+        description: dealDescription
       }
     };
 
