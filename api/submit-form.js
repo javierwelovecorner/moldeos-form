@@ -104,18 +104,17 @@ export default async function handler(req, res) {
     const contactId = hubspotData.id;
     console.log('✅ ¡CONTACTO CREADO EXITOSAMENTE EN HUBSPOT!', contactId);
 
-    // ═══════════════════════════════════════════════════════════════════════════════════
-    // 5. CREAR DEAL AUTOMÁTICAMENTE (NUEVO)
-    // ═══════════════════════════════════════════════════════════════════════════════════
+    // 5. CREAR DEAL AUTOMATICAMENTE
+    // ========================================================
     
-    // Crear descripción detallada del proyecto
-    const dealDescription = `INFORMACIÓN DEL PROYECTO
+    // Crear descripción detallada del proyecto (SIN caracteres especiales)
+    const dealDescription = `INFORMACION DEL PROYECTO
 ==================================================
 
 CONTACTO:
 Nombre: ${formData.nombre || 'N/A'}
 Email: ${formData.email || 'N/A'}
-Teléfono: ${formData.telefono || 'N/A'}
+Telefono: ${formData.telefono || 'N/A'}
 
 EMPRESA:
 Nombre: ${formData.empresa || 'N/A'}
@@ -130,12 +129,12 @@ Volumen: ${formData.volumen || 'No especificado'}
 OBSERVACIONES:
 ${formData.observaciones || 'Sin observaciones'}
 
-PUNTUACIÓN INICIAL DEL LEAD: ${leadScore}
+PUNTUACION INICIAL DEL LEAD: ${leadScore}
 FUENTE: ${formData.campana_de_origen || 'Formulario web'}
 UTM Medium: ${formData.utm_medium || 'N/A'}
 UTM Campaign: ${formData.utm_campaign || 'N/A'}
 
-Fecha de envío: ${new Date().toLocaleString('es-MX')}`.trim();
+Fecha de envio: ${new Date().toLocaleString('es-MX')}`.trim();
 
     const dealPayload = {
       properties: {
@@ -183,9 +182,8 @@ Fecha de envío: ${new Date().toLocaleString('es-MX')}`.trim();
       const dealId = dealData.id;
       console.log('✅ ¡DEAL CREADO EXITOSAMENTE EN HUBSPOT!', dealId);
 
-      // ═══════════════════════════════════════════════════════════════════════════════════
-      // 6. VINCULAR CONTACTO AL DEAL (Crear asociación)
-      // ═══════════════════════════════════════════════════════════════════════════════════
+      // 6. VINCULAR CONTACTO AL DEAL
+      // ========================================================
       
       const associationPayload = {
         data: [
@@ -216,9 +214,8 @@ Fecha de envío: ${new Date().toLocaleString('es-MX')}`.trim();
       }
     }
 
-    // ═══════════════════════════════════════════════════════════════════════════════════
     // 7. RESPUESTA FINAL
-    // ═══════════════════════════════════════════════════════════════════════════════════
+    // ========================================================
     
     return res.status(201).json({
       success: true,
@@ -239,9 +236,8 @@ Fecha de envío: ${new Date().toLocaleString('es-MX')}`.trim();
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════════
 // FUNCIONES AUXILIARES
-// ═══════════════════════════════════════════════════════════════════════════════════
+// ========================================================
 
 // Función para calcular Lead Score
 function calculateLeadScore(data) {
