@@ -109,35 +109,33 @@ export default async function handler(req, res) {
     // ═══════════════════════════════════════════════════════════════════════════════════
     
     // Crear descripción detallada del proyecto
-    const dealDescription = `
-INFORMACIÓN DEL PROYECTO
-═══════════════════════════════════════════
+    const dealDescription = `INFORMACIÓN DEL PROYECTO
+==================================================
 
 CONTACTO:
-  Nombre: ${formData.nombre || 'N/A'}
-  Email: ${formData.email || 'N/A'}
-  Teléfono: ${formData.telefono || 'N/A'}
+Nombre: ${formData.nombre || 'N/A'}
+Email: ${formData.email || 'N/A'}
+Teléfono: ${formData.telefono || 'N/A'}
 
 EMPRESA:
-  Nombre: ${formData.empresa || 'N/A'}
+Nombre: ${formData.empresa || 'N/A'}
 
 DETALLES DEL PROYECTO:
-  Industria: ${formData.industria || 'No especificada'}
-  Tipo de Proyecto: ${formData.tipo_proyecto || 'No especificado'}
-  Presupuesto: ${formData.presupuesto || 'No especificado'}
-  Timeframe: ${formData.urgencia || 'No especificado'}
-  Volumen: ${formData.volumen || 'No especificado'}
-  
+Industria: ${formData.industria || 'No especificada'}
+Tipo de Proyecto: ${formData.tipo_proyecto || 'No especificado'}
+Presupuesto: ${formData.presupuesto || 'No especificado'}
+Timeframe: ${formData.urgencia || 'No especificado'}
+Volumen: ${formData.volumen || 'No especificado'}
+
 OBSERVACIONES:
-  ${formData.observaciones || 'Sin observaciones'}
+${formData.observaciones || 'Sin observaciones'}
 
 PUNTUACIÓN INICIAL DEL LEAD: ${leadScore}
 FUENTE: ${formData.campana_de_origen || 'Formulario web'}
 UTM Medium: ${formData.utm_medium || 'N/A'}
 UTM Campaign: ${formData.utm_campaign || 'N/A'}
 
-Fecha de envío: ${new Date().toLocaleString('es-MX')}
-    `.trim();
+Fecha de envío: ${new Date().toLocaleString('es-MX')}`.trim();
 
     const dealPayload = {
       properties: {
