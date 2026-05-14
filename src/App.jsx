@@ -167,10 +167,33 @@ export default function App() {
   }
 
   function next() {
-    if (!validate()) return;
-    if (isLast) { setSubmitted(true); return; }
-    setStep(s => s + 1);
+  if (!validate()) return;
+  if (isLast) { 
+    // Enviar datos al servidor
+    handleSubmit();
+    return; 
   }
+  setStep(s => s + 1);
+}
+
+async function handleSubmit() {
+  try {
+    const response = await fetch('/api/submit-form', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(answers),
+    });
+    if (response.ok) {
+      // Redirigir a /success después de 500ms
+      setTimeout(() => {
+        window.location.href = '/success';
+      }, 500);
+    }
+  } catch (error) {
+    console.error('Error al enviar:', error);
+    setSubmitted(true);
+  }
+}
 
   const score = calcScore(answers);
   const result = getResult(score, answers);
