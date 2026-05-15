@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from 'react-router-dom';
 
 const steps = [
   {
@@ -142,6 +143,7 @@ function getResult(score, answers) {
 }
 
 export default function App() {
+  const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState({});
   const [submitted, setSubmitted] = useState(false);
@@ -222,6 +224,12 @@ export default function App() {
         if (!result.success) {
           console.error('❌ Error al enviar a HubSpot:', result.error);
           // Continuar mostrando resultado aunque falle HubSpot
+        } else {
+          // Si el envío fue exitoso, redirigir a success después de 1.5 segundos
+          console.log('✅ Enviado exitosamente, redirigiendo a success...');
+          setTimeout(() => {
+            navigate('/success');
+          }, 1500);
         }
 
         setSubmitted(true);
