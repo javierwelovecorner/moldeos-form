@@ -203,7 +203,12 @@ export default function App() {
         console.log('📤 Enviando a HubSpot...', { formData, utmParams });
 
         // Enviar a API
-        const response = await fetch('/api/submit-form', {
+        // En producción, usar URL absoluta; en desarrollo, ruta relativa
+        const apiUrl = process.env.NODE_ENV === 'production' 
+          ? 'https://moldeos-form.vercel.app/api/submit-form'
+          : '/api/submit-form';
+        
+        const response = await fetch(apiUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
