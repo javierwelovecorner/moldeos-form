@@ -1,4 +1,20 @@
+import { useEffect } from "react";
+
 export default function Success() {
+  useEffect(() => {
+    // Google tag (gtag.js) - Google Ads conversion
+    const script1 = document.createElement("script");
+    script1.async = true;
+    script1.src = "https://www.googletagmanager.com/gtag/js?id=AW-18163857886";
+    document.head.appendChild(script1);
+
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { window.dataLayer.push(arguments); }
+    window.gtag = gtag;
+    gtag("js", new Date());
+    gtag("config", "AW-18163857886");
+  }, []);
+
   return (
     <div style={{ minHeight: "100vh", background: "#F0FDF4", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "32px 16px", fontFamily: "'Inter', system-ui, sans-serif" }}>
       <div style={{ maxWidth: 480, width: "100%", background: "#fff", border: "2px solid #86EFAC", borderRadius: 20, padding: "44px 36px", textAlign: "center" }}>
