@@ -181,7 +181,7 @@ async function handleSubmit() {
     const response = await fetch('/api/submit-form', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(answers),
+      body: JSON.stringify({ formData: answers }),
     });
     if (response.ok) {
       // Redirigir a /success después de 500ms
