@@ -13,6 +13,7 @@ export default function Success() {
     window.gtag = gtag;
     gtag("js", new Date());
     gtag("config", "AW-18163857886");
+    gtag("event", "ads_conversion_SUBMIT_LEAD_FORM_1", {});
   }, []);
 
   return (
