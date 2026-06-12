@@ -76,7 +76,7 @@ export default async function handler(req, res) {
 
     // 3. Upsert contacto en HubSpot (crea o actualiza por email)
     const hubspotResponse = await fetch(
-      `https://api.hubapi.com/crm/v3/objects/contacts/upsert`,
+      `https://api.hubapi.com/crm/v3/objects/contacts/batch/upsert`,
       {
         method: 'POST',
         headers: {
