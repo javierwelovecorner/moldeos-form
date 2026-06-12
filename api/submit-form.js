@@ -74,16 +74,22 @@ export default async function handler(req, res) {
 
     console.log('📤 Datos enviando a HubSpot (CONTACTO):', JSON.stringify(hubspotPayload, null, 2));
 
-    // 3. Llamar API de HubSpot para CREAR CONTACTO
+    // 3. Upsert contacto en HubSpot (crea o actualiza por email)
     const hubspotResponse = await fetch(
-      'https://api.hubapi.com/crm/v3/objects/contacts',
+      `https://api.hubapi.com/crm/v3/objects/contacts/upsert`,
       {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${process.env.HUBSPOT_PRIVATE_APP_TOKEN}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(hubspotPayload),
+        body: JSON.stringify({
+          inputs: [{
+            idProperty: 'email',
+            id: formData.email.trim(),
+            properties: hubspotPayload.properties,
+          }]
+        }),
       }
     );
 
@@ -96,13 +102,13 @@ export default async function handler(req, res) {
       console.error('❌ HubSpot API Error (CONTACTO):', hubspotData);
       return res.status(hubspotResponse.status).json({
         success: false,
-        error: 'Error al crear contacto en HubSpot',
+        error: 'Error al crear/actualizar contacto en HubSpot',
         details: hubspotData.message || hubspotData.errors || JSON.stringify(hubspotData)
       });
     }
 
-    const contactId = hubspotData.id;
-    console.log('✅ ¡CONTACTO CREADO EXITOSAMENTE EN HUBSPOT!', contactId);
+    const contactId = hubspotData.results?.[0]?.id;
+    console.log('✅ ¡CONTACTO UPSERT EXITOSO EN HUBSPOT!', contactId);
 
     // 5. CREAR DEAL AUTOMATICAMENTE
     // ========================================================
