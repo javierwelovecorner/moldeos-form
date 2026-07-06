@@ -186,7 +186,7 @@ async function handleSubmit() {
     if (response.ok) {
       // Redirigir a /success después de 500ms
       setTimeout(() => {
-        window.location.href = '/success';
+        window.location.href = 'https://moldeos.com/success';
       }, 500);
     }
   } catch (error) {
